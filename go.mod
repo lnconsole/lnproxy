@@ -1,4 +1,4 @@
-module lnproxy
+module github.com/lnconsole/lnproxy
 
 go 1.19
 
