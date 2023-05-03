@@ -20,7 +20,7 @@ import (
 
 const (
 	EXPIRY_BUFFER    = 300
-	FEE_BASE_MSAT    = 1000
+	FEE_BASE_MSAT    = 4000
 	FEE_PPM          = 9000
 	MIN_AMOUNT_MSAT  = 100000
 	CLTV_DELTA_ALPHA = 3
@@ -350,6 +350,7 @@ func SettleWrappedInvoice(p *WrappedPaymentRequest, paid_msat uint64, wrapped_in
 			return
 		}
 	}
+
 	params := struct {
 		Invoice           string  `json:"payment_request"`
 		AmtMsat           uint64  `json:"amt_msat,omitempty,string"`
@@ -362,7 +363,7 @@ func SettleWrappedInvoice(p *WrappedPaymentRequest, paid_msat uint64, wrapped_in
 	}{
 		Invoice:           original_invoice,
 		AmtMsat:           amt_msat,
-		TimeoutSeconds:    p.Expiry - time.Now().Unix(),
+		TimeoutSeconds:    p.Expiry,
 		FeeLimitMsat:      max_fee_msat,
 		NoInflightUpdates: true,
 		CltvLimit:         int32(p.CltvExpiry - CLTV_DELTA_ALPHA),
@@ -433,7 +434,7 @@ InFlight:
 			log.Printf("preimage (%d): %s\n", paid_msat/1000, preimage)
 			break InFlight
 		default:
-			log.Println("Unknown payment status:", message.Result.Status, p)
+			log.Printf("Unknown payment status: %s. Invoice: %v", message.Result.Status, p)
 		}
 
 		if err == io.EOF {
